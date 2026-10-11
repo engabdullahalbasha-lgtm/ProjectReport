@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#064c6c">
+  <meta name="description" content="RECIE - Reaching Every Child In Emergencies | Interactive project report">
+  <title>RECIE | لوحة متابعة المشروع</title>
+  <link rel="icon" href="assets/unicef.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('theme'); } catch (e) {}
+      document.documentElement.dataset.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    })();
+  </script>
+  <script src="vendor/xlsx.full.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  </svg>
+
+  <a class="skip" href="#dashboard" id="skip"></a>
+
+  <div id="preloader" aria-hidden="true">
+    <div class="pl-box">
+      <img src="assets/nmo.png" alt="" onerror="this.remove()">
+      <div class="pl-bar"><i id="plBar"></i></div>
+      <b id="plPct">0%</b>
+    </div>
+  </div>
+
+  <header class="site-header" id="overview">
+    <div class="top shell">
+      <div class="logos">
+        <span><img src="assets/nmo.png" alt="Nahda Makers Organization" onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:this.alt}))"></span>
+        <span><img src="assets/unicef.png" alt="UNICEF" onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:this.alt}))"></span>
+      </div>
+      <div class="tools">
+        <span class="live" id="live"><i></i><span id="liveT"></span></span>
+        <button id="refresh" type="button"><svg><use href="#i-refresh"/></svg></button>
+        <button id="print" type="button"><svg><use href="#i-print"/></svg></button>
+        <button id="theme" type="button"><svg class="i-moon"><use href="#i-moon"/></svg><svg class="i-sun"><use href="#i-sun"/></svg></button>
+        <button id="lang" type="button" aria-label="Language">EN</button>
+      </div>
+    </div>
+
+    <div class="hero shell">
+      <div class="hero-main">
+        <span class="over" id="over"></span>
+        <h1 id="title"><span class="skeleton w60"></span></h1>
+        <p id="desc"></p>
+        <div class="chips">
+          <span id="donor"></span>
+          <span id="partner"></span>
+        </div>
+      </div>
+      <aside class="timeline-card">
+        <div class="tc-head">
+          <strong id="duration"></strong>
+          <span class="status" id="status"></span>
+        </div>
+        <div class="tc-row"><small id="startL"></small><b id="start">—</b></div>
+        <div class="tc-row"><small id="endL"></small><b id="end">—</b></div>
+        <div class="tc-progress">
+          <div class="tc-meta"><small id="elapsedL"></small><b id="elapsed">0%</b></div>
+          <div class="bar"><i id="elapsedBar"></i></div>
+          <small class="tc-left" id="daysLeft"></small>
+        </div>
+        <em id="updated"></em>
+      </aside>
+    </div>
+
+    <div class="impact shell">
+      <div class="impact-head"><span id="impactT"></span><small id="impactS"></small></div>
+      <div class="impact-grid" id="impact"></div>
+    </div>
+  </header>
+
+  <nav class="site-nav" aria-label="Sections">
+    <div class="shell nav" id="nav">
+      <a href="#overview" data-go="overview"></a>
+      <a href="#dashboard" data-go="dashboard"></a>
+      <a href="#areas" data-go="areas"></a>
+      <a href="#indicators" data-go="indicators"></a>
+      <a href="#activities" data-go="activities"></a>
+      <a href="#updates" data-go="updates"></a>
+    </div>
+    <div class="filterbar" id="filterBar" hidden>
+      <div class="shell fb-in">
+        <span id="fbLabel"></span>
+        <div class="fb-chips" id="fbChips"></div>
+        <button type="button" id="fbReset" data-clear="all"></button>
+      </div>
+    </div>
+    <div class="nav-progress"><i id="scrollBar"></i></div>
+  </nav>
+
+  <div id="notice" class="notice shell" hidden></div>
+  <div id="warnings" class="notice warn shell" hidden></div>
+
+  <main class="shell">
+    <section id="dashboard">
+      <div class="head"><h2 id="filterT"></h2><p id="filterD"></p></div>
+
+      <div class="filters" id="filters">
+        <div class="filter-group">
+          <b id="sectorLabel"></b>
+          <div id="sectorFilters" class="filter-list" role="group" aria-labelledby="sectorLabel"></div>
+        </div>
+        <div class="filter-group">
+          <b id="govLabel"></b>
+          <div id="govFilters" class="filter-list" role="group" aria-labelledby="govLabel"></div>
+        </div>
+        <div class="filter-foot">
+          <div id="context" class="context" aria-live="polite"></div>
+          <button type="button" id="reset" class="ghost-btn" data-clear="all" hidden></button>
+        </div>
+      </div>
+
+      <div id="govProfile" class="profile" hidden></div>
+
+      <div class="dash-top">
+        <div id="kpis" class="kpis"></div>
+        <div class="card ring-card">
+          <h3 id="overallT"></h3>
+          <div id="overallRing" class="ring-wrap"></div>
+          <p id="overallS"></p>
+        </div>
+      </div>
+
+      <div class="charts">
+        <div class="card chart-card">
+          <div class="chart-head"><h3 id="bySectorT"></h3><div class="legend" id="legendA"></div></div>
+          <div id="bySector" class="hbars"></div>
+        </div>
+        <div class="card chart-card">
+          <div class="chart-head"><h3 id="budgetT"></h3><small id="budgetS"></small></div>
+          <div id="budget" class="donut-wrap"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="areas">
+      <div class="head"><h2 id="areasT"></h2><p id="areasD"></p></div>
+      <div class="card heat-card">
+        <div class="chart-head"><h3 id="heatT"></h3><div class="heat-legend" id="heatLegend"></div></div>
+        <div class="table-scroll"><table class="heat" id="heat"></table></div>
+      </div>
+      <div id="govCards" class="grid gov-grid"></div>
+    </section>
+
+    <section id="indicators">
+      <div class="head"><h2 id="indT"></h2><p id="indD"></p></div>
+      <div id="indicatorCards" class="grid"></div>
+    </section>
+
+    <section id="activities">
+      <div class="head"><h2 id="actT"></h2><p id="actD"></p></div>
+      <div class="card table-card">
+        <div class="table-tools">
+          <input type="search" id="actSearch" autocomplete="off">
+          <div class="sort" id="actSort"></div>
+          <button type="button" id="exportCsv" class="ghost-btn"></button>
+        </div>
+        <div class="table-scroll">
+          <table class="act-table">
+            <thead><tr><th id="thAct"></th><th id="thSector"></th><th id="thTarget"></th><th id="thActual"></th><th id="thBudget"></th><th id="thStatus"></th></tr></thead>
+            <tbody id="activityRows"></tbody>
+            <tfoot><tr id="activityTotal"></tr></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="updates">
+      <div class="head"><h2 id="upT"></h2><p id="upD"></p></div>
+      <div id="news" class="grid three"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell foot">
+      <div class="logos">
+        <span><img src="assets/nmo.png" alt="Nahda Makers Organization" onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:this.alt}))"></span>
+        <span><img src="assets/unicef.png" alt="UNICEF" onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:this.alt}))"></span>
+      </div>
+      <p id="footer"></p>
+    </div>
+  </footer>
+
+  <button id="toTop" class="to-top" type="button"><svg><use href="#i-up"/></svg></button>
+  <div id="tooltip" class="tooltip" role="tooltip"></div>
+
+  <noscript><p class="shell" style="padding:20px">This report requires JavaScript. / يتطلب هذا التقرير تفعيل JavaScript.</p></noscript>
+</body>
+</html>
